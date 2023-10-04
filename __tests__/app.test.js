@@ -36,30 +36,80 @@ describe("GET: /api", () => {
       .get("/api/articles/1")
       .expect(200)
       .then((response) => {
-          expect(response.body.article).toHaveProperty('article_id', expect.any(Number));
-          expect(response.body.article).toHaveProperty('title', expect.any(String));
-          expect(response.body.article).toHaveProperty('topic', expect.any(String));
-          expect(response.body.article).toHaveProperty('author', expect.any(String));
-          expect(response.body.article).toHaveProperty('body', expect.any(String));
-          expect(response.body.article).toHaveProperty('created_at', expect.any(String));
-          expect(response.body.article).toHaveProperty('votes', expect.any(Number));
-          expect(response.body.article).toHaveProperty('article_img_url', expect.any(String));
+        expect(response.body.article.article_id).toBe(1);
+        expect(response.body.article).toHaveProperty(
+          "title",
+          expect.any(String)
+        );
+        expect(response.body.article).toHaveProperty(
+          "topic",
+          expect.any(String)
+        );
+        expect(response.body.article).toHaveProperty(
+          "author",
+          expect.any(String)
+        );
+        expect(response.body.article).toHaveProperty(
+          "body",
+          expect.any(String)
+        );
+        expect(response.body.article).toHaveProperty(
+          "created_at",
+          expect.any(String)
+        );
+        expect(response.body.article).toHaveProperty(
+          "votes",
+          expect.any(Number)
+        );
+        expect(response.body.article).toHaveProperty(
+          "article_img_url",
+          expect.any(String)
+        );
       });
   });
-  test('GET:404 sends an appropriate status and error message when given a valid but non-existent id', () => {
+  test("GET:404 sends an appropriate status and error message when given a valid but non-existent id", () => {
     return request(app)
-      .get('/api/articles/999')
+      .get("/api/articles/999")
       .expect(404)
       .then((response) => {
-        expect(response.body.msg).toBe('article does not exist');
+        expect(response.body.msg).toBe("article does not exist");
       });
   });
-  test('GET:400 sends an appropriate status and error message when given an invalid id', () => {
+  test("GET:400 sends an appropriate status and error message when given an invalid id", () => {
     return request(app)
-      .get('/api/articles/not-an-article')
+      .get("/api/articles/not-an-article")
       .expect(400)
       .then((response) => {
-        expect(response.body.msg).toBe('bad request');
+        expect(response.body.msg).toBe("bad request");
+      });
+  });
+  test("should respond with an array of article objects", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.articles.length).toBe(13);
+        response.body.articles.forEach((article) => {
+          expect(article).toHaveProperty("article_id", expect.any(Number));
+          expect(article).toHaveProperty("title", expect.any(String));
+          expect(article).toHaveProperty("topic", expect.any(String));
+          expect(article).toHaveProperty("author", expect.any(String));
+          expect(article).toHaveProperty("created_at", expect.any(String));
+          expect(article).toHaveProperty("votes", expect.any(Number));
+          expect(article).toHaveProperty("article_img_url", expect.any(String));
+          expect(article).toHaveProperty("comment_count", expect.any(String));
+        });
+      });
+  });
+  test("should respond with an array which is sorted by date in descending order", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then((result) => {
+        console.log(result.body, '<<<<');
+        expect(result.body.articles).toBeSortedBy("created_at", {
+          descending: true,
+        });
       });
   });
 });
