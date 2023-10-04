@@ -3,6 +3,7 @@ const {
   getTopics,
   getApi,
   getArticleById,
+  getArticles,
 } = require("../controllers/nc-news-controller");
 
 const app = express();
@@ -12,7 +13,8 @@ app.get("/api/topics", getTopics);
 app.get("/api", getApi);
 
 app.get("/api/articles/:article_id", getArticleById);
-//get request for para article id endpoint
+
+app.get("/api/articles", getArticles);
 
 app.use((err, req, res, next) => {
   if (err.status && err.msg) {
@@ -32,6 +34,7 @@ app.use((err, req, res, next) => {
 
 app.use((err, req, res, next) => {
   res.status(500).send({ msg: `internal server error: ${err}` });
+  next(err);
 });
 
 module.exports = { app };
