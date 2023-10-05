@@ -2,6 +2,7 @@ const {
   selectTopics,
   selectArticleById,
   selectArticle,
+  selectCommentsByArticleId,
 } = require("../models/topics-model");
 const endpoints = require("../endpoints.json");
 
@@ -27,10 +28,26 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-    selectArticle().then((articles) => {
+  selectArticle()
+    .then((articles) => {
       res.status(200).send({ articles });
     })
     .catch((err) => {
       next(err);
-    })
+    });
 };
+
+exports.getCommentsByArticleId = (req, res, next) => {
+  const { article_id } = req.params;
+  Promise.all([
+    selectCommentsByArticleId(article_id), selectArticleById(article_id)
+  ])
+    
+    .then(([comments]) => {
+      res.status(200).send({ comments });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
