@@ -4,10 +4,15 @@ const {
   getApi,
   getArticleById,
   getArticles,
-  getCommentsByArticleId
+  getCommentsByArticleId,
+  postCommentsByArticleId,
 } = require("../controllers/nc-news-controller");
 
 const app = express();
+
+app.use(express.json());
+
+app.post("/api/articles/:article_id/comments", postCommentsByArticleId);
 
 app.get("/api/topics", getTopics);
 
@@ -33,11 +38,11 @@ app.use((err, req, res, next) => {
   } else {
     next(err);
   }
-});//400
+}); //400
 
 app.use((err, req, res, next) => {
   res.status(500).send({ msg: `internal server error: ${err}` });
   next(err);
-});//server
+}); //server
 
 module.exports = { app };

@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const comments = require("../db/data/test-data/comments");
 
 exports.selectTopics = () => {
   return db.query("SELECT * FROM topics;").then((result) => {
@@ -61,3 +62,55 @@ exports.selectCommentsByArticleId = (article_id) => {
       return comment;
     });
 };
+
+exports.insertCommentsByArticleId = (comments) => {
+  const {article_id, author, body} = comments
+  
+  return db
+    .query(
+      `
+INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3)
+RETURNING *;
+`,
+      [article_id, author, body]
+    )
+    .then(({rows}) => {
+      const newComment = rows[0];
+      // console.log(newComment, 'I am in the model')
+      return newComment;
+    });
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // test('POST:400 should respond with an appropriate status and error message when posting to an invalid id', () => {
+  //   const newComment = {
+  //     article_id: 'abc',
+  //     author: "butter_bridge",
+  //     body: "story of my life"
+  //   };
+  //   return request(app)
+  //   .post('/api/articles/abc/comments')
+  //   .send(newComment)
+  //   .expect(400)
+  //   .then((response) => {
+  //     expect(response.body.msg).toBe('bad request')
+  //   })
+  // });
