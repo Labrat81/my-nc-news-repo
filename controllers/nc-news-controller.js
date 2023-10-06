@@ -3,6 +3,7 @@ const {
   selectArticleById,
   selectArticle,
   selectCommentsByArticleId,
+  insertCommentsByArticleId,
 } = require("../models/topics-model");
 const endpoints = require("../endpoints.json");
 
@@ -40,9 +41,9 @@ exports.getArticles = (req, res, next) => {
 exports.getCommentsByArticleId = (req, res, next) => {
   const { article_id } = req.params;
   Promise.all([
-    selectCommentsByArticleId(article_id), selectArticleById(article_id)
+    selectCommentsByArticleId(article_id),
+    selectArticleById(article_id),
   ])
-    
     .then(([comments]) => {
       res.status(200).send({ comments });
     })
@@ -51,3 +52,25 @@ exports.getCommentsByArticleId = (req, res, next) => {
     });
 };
 
+exports.postCommentsByArticleId = (req, res, next) => {
+  const { article_id } = req.params;
+  selectArticleById(article_id)
+    .then((article) => {
+      //in selectArticleById use the custom error handle(article replaces rows)
+      if (!article) {
+        // If the article does not exist, send a 404 response
+        return Promise.reject({
+          status: 404,
+          msg: "article does not exist",
+        });
+      }
+      //then return
+      return insertCommentsByArticleId(req.body);
+    })
+    .then((comments) => {
+      res.status(201).send({ comments });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
